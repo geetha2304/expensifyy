@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Expensify - My History</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #4F6D7A, #C0D6DF, #DBE9EE);
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 100px auto 40px;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .filter-controls {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    select, button {
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 12px;
+      text-align: center;
+    }
+    th {
+      background-color: #f0e4e8;
+    }
+    .settings-container {
+      position: absolute;
+      top: 30px;
+      right: 40px;
+      z-index: 10;
+    }
+    .settings-icon {
+      font-size: 24px;
+      background: rgba(255,255,255,0.7);
+      border-radius: 50%;
+      padding: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .settings-icon:hover {
+      background: rgba(255,255,255,0.9);
+    }
+    .dropdown {
+      display: none;
+      flex-direction: column;
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: rgba(255,255,255,0.95);
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      padding: 10px;
+      min-width: 180px;
+    }
+    .dropdown a {
+      text-decoration: none;
+      padding: 10px;
+      font-weight: bold;
+      color: #333;
+      border-radius: 8px;
+      transition: background 0.3s;
+    }
+    .dropdown a:hover {
+      background: #f0e4e8;
+    }
+
+    .gif-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+  <!-- Settings Dropdown -->
+<div class="settings-container">
+  <div class="settings-icon" onclick="toggleDropdown()">⚙️</div>
+  <div class="dropdown" id="settingsDropdown">
+    <a href="signup.html">Signup</a>
+    <a href="login.html">Login</a>
+    <a href="profile.html">Profile</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="analysis.html">Analysis</a>
+    <a href="Myhistory.html">My History</a>
+    <a href="chatbot.html">
+      <img src="assets/icongif2.gif" class="gif-icon" alt="Expy GIF" />
+      Talk with Expy!
+    </a>
+    <a href="#" onclick="logout()">Logout</a>
+  </div>
+</div>
+
+  <div class="container">
+    <h2>Expense History</h2>
+
+    <!-- Filters -->
+    <div class="filter-controls">
+      <select id="filterByDate" onchange="filterExpenses()">
+        <option value="">Filter by Date</option>
+        <option value="daily">Today</option>
+        <option value="weekly">This Week</option>
+        <option value="monthly">This Month</option>
+      </select>
+
+      <button onclick="downloadPDF()">Download as PDF</button>
+      <button onclick="deleteHistory()">Delete History</button>
+    </div>
+
+    <!-- History Table -->
+    <table id="expensesTable">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Title</th>
+          <th>Amount (₹)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Data will be dynamically inserted here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+  <script>
+    function toggleDropdown() {
+      const dropdown = document.getElementById("settingsDropdown");
+      dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
+    }
+  
+    function logout() {
+      localStorage.clear();
+      window.location.href = "signup.html";
+    }
+  
+    function deleteHistory() {
+      localStorage.removeItem('sessionExpenses');
+      location.reload();
+    }
+  
+    function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.autoTable({ html: '#expensesTable' });
+      doc.save('expenses_report.pdf');
+    }
+  
+    function filterExpenses() {
+      const filter = document.getElementById("filterByDate").value;
+      const expenses = JSON.parse(localStorage.getItem("sessionExpenses")) || [];
+      const filteredExpenses = applyDateFilter(expenses, filter);
+  
+      renderTable(filteredExpenses);
+    }
+  
+    function applyDateFilter(expenses, filter) {
+      const today = new Date();
+      return expenses.filter(expense => {
+        const expenseDate = new Date(expense.date);
+        if (filter === 'daily') {
+          return expenseDate.toDateString() === today.toDateString();
+        }
+        if (filter === 'weekly') {
+          const startOfWeek = new Date(today);
+          startOfWeek.setDate(today.getDate() - today.getDay());
+          startOfWeek.setHours(0, 0, 0, 0);
+          return expenseDate >= startOfWeek;
+        }
+        if (filter === 'monthly') {
+          return (expenseDate.getMonth() === today.getMonth()) &&
+                 (expenseDate.getFullYear() === today.getFullYear());
+        }
+        return true; // No filter selected
+      });
+    }
+  
+    function renderTable(expenses) {
+      const tableBody = document.querySelector('#expensesTable tbody');
+      tableBody.innerHTML = '';
+  
+      if (expenses.length > 0) {
+        expenses.forEach(expense => {
+          const dateFormatted = formatDate(expense.date);
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${dateFormatted}</td>
+            <td>${expense.title}</td>
+            <td>₹${expense.amount}</td>
+          `;
+          tableBody.appendChild(row);
+        });
+      } else {
+        tableBody.innerHTML = `<tr><td colspan="3">No data available for this filter.</td></tr>`;
+      }
+    }
+  
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      if (isNaN(date)) return "Invalid Date";
+      return date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      }); 
+    }
+  
+    window.onload = () => {
+      const expenses = JSON.parse(localStorage.getItem("sessionExpenses")) || [];
+      renderTable(expenses);
+    };
+  </script>
+  
+</body>
+</html>

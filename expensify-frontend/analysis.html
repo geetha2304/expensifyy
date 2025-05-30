@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Expensify - Analysis</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #4F6D7A, #C0D6DF, #DBE9EE);
+      display: flex;
+      min-height: 100vh;
+    }
+    .main-content {
+      flex: 1;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    /* Settings Icon */
+    .settings-container {
+      position: absolute;
+      top: 30px;
+      right: 40px;
+      z-index: 10;
+    }
+    .settings-icon {
+      font-size: 24px;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 50%;
+      padding: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .settings-icon:hover {
+      background: rgba(255, 255, 255, 0.9);
+    }
+    .dropdown {
+      display: none;
+      flex-direction: column;
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      padding: 10px;
+      min-width: 180px;
+    }
+    .dropdown a {
+      text-decoration: none;
+      padding: 10px;
+      font-weight: bold;
+      color: #333;
+      border-radius: 8px;
+      transition: background 0.3s;
+    }
+    .dropdown a:hover {
+      background: #f0e4e8;
+    }
+    .chart-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+      align-items: center;
+      width: 100%;
+    }
+    .chart-container {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      padding: 30px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 800px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    canvas {
+      width: 100% !important;
+      max-width: 400px;
+      height: 400px !important;
+    }
+    .suggestion {
+      font-size: 14px;
+      color: #444;
+      text-align: center;
+      font-weight: 500;
+    }
+    .no-data {
+      color: #fff;
+      font-size: 18px;
+      margin-top: 60px;
+    }
+    .btn-clear {
+      padding: 12px 20px;
+      background: #4A6FA5;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .btn-clear:hover {
+      background: #166088;
+    }
+    /* NEW: Budget alert styles */
+    .budget-alert {
+      margin-bottom: 30px;
+      padding: 15px 25px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 18px;
+      text-align: center;
+      width: 90%;
+      max-width: 800px;
+    }
+    .safe {
+      background-color: #d4edda;
+      color: #155724;
+      border: 2px solid #c3e6cb;
+    }
+    .warning {
+      background-color: #fff3cd;
+      color: #856404;
+      border: 2px solid #ffeeba;
+    }
+    .danger {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 2px solid #f5c6cb;
+    }
+
+    .gif-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  </style>
+</head>
+
+<body>
+<!-- Settings Dropdown -->
+<div class="settings-container">
+  <div class="settings-icon" onclick="toggleDropdown()">⚙️</div>
+  <div class="dropdown" id="settingsDropdown">
+    <a href="signup.html">Signup</a>
+    <a href="login.html">Login</a>
+    <a href="profile.html">Profile</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="analysis.html">Analysis</a>
+    <a href="Myhistory.html">My History</a>
+    <a href="chatbot.html">
+      <img src="assets/icongif2.gif" class="gif-icon" alt="Expy GIF" />
+      Talk with Expy!
+    </a>
+    <a href="#" onclick="logout()">Logout</a>
+  </div>
+</div>
+  <div class="main-content">
+    <div id="budgetAlert" class="budget-alert" style="display: none;">Budget Status</div>
+
+    <div id="analysisContent" class="chart-wrapper" style="display: none;">
+      <div class="chart-container">
+        <h2 style="margin: 0; color: #333;">📊 Bar Graph</h2>
+        <canvas id="barChart"></canvas>
+        <div class="suggestion" id="barSuggestion">Suggestion will appear here...</div>
+      </div>
+
+      <div class="chart-container">
+        <h2 style="margin: 0; color: #333;">🥧 Pie Chart</h2>
+        <canvas id="pieChart"></canvas>
+        <div class="suggestion" id="pieSuggestion">Suggestion will appear here...</div>
+      </div>
+
+      <div style="display: flex; gap: 20px; margin-top: 20px;">
+        <button class="btn-clear" onclick="clearSession()">🗑️ Start New Session</button>
+        <button class="btn-clear" onclick="goToHistory()">📜 Show History</button>
+      </div>
+    </div>
+
+    <div id="noData" class="no-data" style="display: none;">
+      ⚠️ No session expenses found. Please add expenses in Dashboard.
+    </div>
+  </div>
+
+  <script>
+    function toggleDropdown() {
+      const dropdown = document.getElementById("settingsDropdown");
+      dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = "signup.html";
+    }
+
+    function clearSession() {
+      localStorage.removeItem("sessionExpenses");
+      window.location.reload();
+    }
+
+    function goToHistory() {
+      window.location.href = "Myhistory.html";
+    }
+
+    const sessionExpenses = JSON.parse(localStorage.getItem("sessionExpenses")) || [];
+
+    if (sessionExpenses.length === 0) {
+      document.getElementById("noData").style.display = "block";
+    } else {
+      document.getElementById("analysisContent").style.display = "flex";
+
+      const titles = sessionExpenses.map(e => e.title);
+      const amounts = sessionExpenses.map(e => e.amount);
+      const salaries = sessionExpenses.map(e => e.salary);
+
+      const totalSalary = salaries.length > 0 ? salaries[salaries.length - 1] : 0;
+      const totalSpent = amounts.reduce((sum, val) => sum + val, 0);
+      const remaining = totalSalary - totalSpent;
+
+      const percentSpent = (totalSpent / totalSalary) * 100;
+      const budgetAlert = document.getElementById("budgetAlert");
+
+      // Corrected Show budget status
+if (percentSpent < 60) {
+  budgetAlert.className = "budget-alert safe";
+  budgetAlert.innerText = "🟢 Safe! You are managing your budget well.";
+} else if (percentSpent >= 60 && percentSpent <= 90) {
+  budgetAlert.className = "budget-alert warning";
+  budgetAlert.innerText = "🟡 Warning! You're nearing your budget limit.";
+} else if (percentSpent > 90) {
+  budgetAlert.className = "budget-alert danger";
+  budgetAlert.innerText = "🔴 Danger! You have exceeded your budget limit!";
+}
+budgetAlert.style.display = "block";
+
+
+      new Chart(document.getElementById('barChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: titles,
+          datasets: [{
+            label: '₹ Amount',
+            data: amounts,
+            backgroundColor: '#C0D6DF'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      });
+
+      new Chart(document.getElementById('pieChart').getContext('2d'), {
+        type: 'pie',
+        data: {
+          labels: [...titles, "Remaining"],
+          datasets: [{
+            data: [...amounts, remaining],
+            backgroundColor: [
+              ...titles.map(() => '#4F6D7A'),
+              '#166088'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      });
+
+      const savingTips = [
+        "💡 You're saving well! Keep tracking your expenses.",
+        "✅ Great job! Your savings are on point.",
+        "🧠 Pro Tip: Invest part of your savings for better returns!"
+      ];
+
+      const moderateTips = [
+        "⚠️ You're doing okay, but there's room to save more.",
+        "💬 Consider cutting back on non-essential spending.",
+        "🔍 Review subscriptions or small leaks in spending."
+      ];
+
+      const overspendingTips = [
+        "🚨 Whoa! You're spending a lot. Try to budget tighter.",
+        "🛑 High spending detected. Consider a monthly limit.",
+        "⚠️ You may run out of salary. Reassess your expenses."
+      ];
+
+      let selectedTips = [];
+      if (percentSpent < 30) {
+        selectedTips = savingTips;
+      } else if (percentSpent < 60) {
+        selectedTips = moderateTips;
+      } else {
+        selectedTips = overspendingTips;
+      }
+
+      const randomTip = selectedTips[Math.floor(Math.random() * selectedTips.length)];
+      document.getElementById("barSuggestion").innerText = randomTip;
+      document.getElementById("pieSuggestion").innerText = randomTip;
+    }
+  </script>
+</body>
+</html>

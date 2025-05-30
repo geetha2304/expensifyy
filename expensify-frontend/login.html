@@ -1,0 +1,232 @@
+<!-- login.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Expensify - Login</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #4F6D7A, #C0D6F1, #DBE9EE);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 25px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 28px;
+      background: linear-gradient(90deg, #4A6FA5, #166088);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 30px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+      color: #2a2a2a;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      border: 1px solid #a0bfc9;
+      font-size: 14px;
+    }
+
+    .forgot-password {
+      text-align: right;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+
+    .forgot-password a {
+      color: #4F6D7A;
+      text-decoration: none;
+    }
+
+    .forgot-password a:hover {
+      text-decoration: underline;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(to right, #4A6FA5, #166088);
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: linear-gradient(to right, #3a5e90, #0e4e70);
+    }
+
+    .signup-link {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .signup-link a {
+      color: #166088;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .signup-link a:hover {
+      text-decoration: underline;
+    }
+
+    /* Settings Icon */
+    .settings-container {
+      position: absolute;
+      top: 30px;
+      right: 40px;
+      z-index: 10;
+    }
+
+    .settings-icon {
+      font-size: 24px;
+      background: rgba(255,255,255,0.7);
+      border-radius: 50%;
+      padding: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .settings-icon:hover {
+      background: rgba(255,255,255,0.9);
+    }
+
+    .dropdown {
+      display: none;
+      flex-direction: column;
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: rgba(255,255,255,0.95);
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      padding: 10px;
+      min-width: 180px;
+    }
+
+    .dropdown a {
+      text-decoration: none;
+      padding: 10px;
+      font-weight: bold;
+      color: #333;
+      border-radius: 8px;
+      transition: background 0.3s;
+    }
+
+    .dropdown a:hover {
+      background: #DBE9EE;
+    }
+
+    .gif-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+
+ <!-- Settings Dropdown -->
+<div class="settings-container">
+  <div class="settings-icon" onclick="toggleDropdown()">⚙️</div>
+  <div class="dropdown" id="settingsDropdown">
+    <a href="signup.html">Signup</a>
+    <a href="login.html">Login</a>
+    <a href="profile.html">Profile</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="analysis.html">Analysis</a>
+    <a href="Myhistory.html">My History</a>
+    <a href="chatbot.html">
+      <img src="assets/icongif2.gif" class="gif-icon" alt="Expy GIF" />
+      Talk with Expy!
+    </a>
+    <a href="#" onclick="logout()">Logout</a>
+  </div>
+</div>
+
+  <div class="container">
+    <h2>🔓 Login to Expensify</h2>
+    <form onsubmit="handleLogin(event)">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" placeholder="example@mail.com" required>
+
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Enter your password" required>
+
+      <div class="forgot-password">
+        <a href="forgot-password.html">Forgot Password?</a>
+      </div>
+
+      <button type="submit">Login</button>
+    </form>
+
+    <div class="signup-link">
+      Don’t have an account? <a href="signup.html">Sign up now</a>
+    </div>
+  </div>
+
+  <script>
+    function handleLogin(event) {
+      event.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      const savedUser = JSON.parse(localStorage.getItem("user"));
+
+      if (savedUser && savedUser.email === email && savedUser.password === password) {
+        alert("🎉 Login successful!");
+        setTimeout(() => {
+          window.location.href = "profile.html";
+        }, 500);
+      } else {
+        alert("❌ Invalid credentials. Please try again.");
+      }
+    }
+
+    function toggleDropdown() {
+      const dropdown = document.getElementById("settingsDropdown");
+      dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
+    }
+
+    function logout() {
+      localStorage.removeItem("user");
+      alert("You have logged out!");
+      window.location.href = "signup.html";
+    }
+  </script>
+</body>
+</html>      

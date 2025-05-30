@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Expensify - Talk with Expy!</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #4F6D7A, #C0D6F1, #DBE9EE);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      position: relative;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      padding: 30px;
+      border-radius: 25px;
+      width: 90%;
+      max-width: 800px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .header h2 {
+      font-size: 26px;
+      background: linear-gradient(90deg, #4A6FA5, #166088);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .chatbox {
+      width: 100%;
+      height: 400px;
+      padding: 20px;
+      border-radius: 15px;
+      border: 1px solid #a0bfc9;
+      font-size: 14px;
+      margin-bottom: 20px;
+      overflow-y: auto;
+      background: rgba(255,255,255,0.5);
+      display: flex;
+      flex-direction: column;
+    }
+    .user-input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #a0bfc9;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(to right, #4A6FA5, #166088);
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+      flex: 1;
+    }
+    button:hover {
+      background: linear-gradient(to right, #3a5e90, #0e4e70);
+    }
+    .buttons-container {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      margin-bottom: 5px;
+    }
+    .settings-container {
+      position: absolute;
+      top: 30px;
+      right: 40px;
+      z-index: 10;
+    }
+    .settings-icon {
+      font-size: 24px;
+      background: rgba(255,255,255,0.7);
+      border-radius: 50%;
+      padding: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+      user-select: none;
+    }
+    .settings-icon:hover {
+      background: rgba(255,255,255,0.9);
+    }
+    .dropdown {
+      display: none;
+      flex-direction: column;
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: rgba(255,255,255,0.95);
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      padding: 10px;
+      min-width: 220px;
+      user-select: none;
+    }
+    .dropdown a {
+      text-decoration: none;
+      padding: 10px;
+      font-weight: bold;
+      color: #333;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.3s;
+    }
+    .dropdown a:hover {
+      background: #DBE9EE;
+    }
+    .chatbot-message, .user-message {
+      background-color: rgba(255,255,255,0.8);
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      font-size: 14px;
+      max-width: 70%;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+    }
+    .user-message {
+      align-self: flex-end;
+      background-color: #7392b7;
+      color: white;
+    }
+    .typing {
+      font-style: italic;
+      color: #666;
+      margin-bottom: 10px;
+    }
+    .gif-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="settings-container">
+    <div class="settings-icon" onclick="toggleDropdown()">⚙️</div>
+    <div class="dropdown" id="settingsDropdown">
+      <a href="signup.html">Signup</a>
+      <a href="login.html">Login</a>
+      <a href="profile.html">Profile</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="analysis.html">Analysis</a>
+      <a href="Myhistory.html">My History</a>
+      <a href="chatbot.html">
+        <img src="assets/icongif2.gif" class="gif-icon" alt="Expy GIF" />
+        Talk with Expy!
+      </a>
+      <a href="#" onclick="logout()">Logout</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="header">
+      <img src="assets/icongif2.gif" alt="Expy Icon" class="gif-icon" />
+      <h2>Talk with Expy!</h2>
+    </div>
+
+    <div class="chatbox" id="chatbox" aria-live="polite" aria-label="Chat messages"></div>
+    <input
+      type="text"
+      id="userMessage"
+      class="user-input"
+      placeholder="Type your message..."
+      onkeydown="checkEnter(event)"
+      aria-label="Message input"
+      autocomplete="off"
+      spellcheck="false"
+    />
+
+    <div class="buttons-container">
+      <button onclick="sendMessage()" aria-label="Send message">Send</button>
+      <button onclick="startVoiceInput()" aria-label="Start voice input">🎤 Speak</button>
+      <button onclick="downloadPDF()" aria-label="Download chat summary PDF">📥 Download Summary</button>
+      <button onclick="clearChatHistory()" aria-label="Clear chat history">🗑️ Clear Data</button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    // Settings dropdown toggle
+    function toggleDropdown() {
+      const dropdown = document.getElementById("settingsDropdown");
+      dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
+    }
+
+    // Logout function
+    function logout() {
+      localStorage.removeItem("user");
+      alert("You have logged out!");
+      window.location.href = "signup.html";
+    }
+
+    // Text-to-speech for bot replies
+    function speak(text) {
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        speechSynthesis.cancel();
+        speechSynthesis.speak(utterance);
+      }
+    }
+
+    // Add a message to the chatbox
+    function addMessage(text, sender) {
+      const messageDiv = document.createElement("div");
+      messageDiv.classList.add(sender === 'user' ? "user-message" : "chatbot-message");
+      messageDiv.textContent = text;
+      const chatbox = document.getElementById("chatbox");
+      chatbox.appendChild(messageDiv);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    // Bot reply logic (simple keyword based)
+    function getBotReply(text) {
+      text = text.toLowerCase();
+      if (text.includes("hi") || text.includes("hello")) return "Hi there! 👋 How can I assist you with your expenses today?";
+      if (text.includes("bye")) return "Goodbye! 👋 Stay smart with your money!";
+      if (text.includes("how are you")) return "I'm Expy and I'm always financially fine! 😄";
+      if (text.includes("expense") || text.includes("add")) return "Head to your Dashboard and tap 'Add Expense' to record your spending! 💸";
+      if (text.includes("analysis")) return "Go to the 'Analysis' page to visualize your spending trends! 📊";
+      if (text.includes("history") || text.includes("report")) return "You can find all your past expenses on the 'My History' page 📜.";
+      if (text.includes("who are you")) return "I'm Expy 🤖 – your budget buddy and expense guru!";
+      if (text.includes("suggestion") || text.includes("tip")) return "Try tracking your daily coffee! Small expenses add up fast! ☕💰";
+      if (text.includes("invest")) return "Start small with SIPs or mutual funds. Consistency is key! 📈";
+      if (text.includes("save")) return "Try the 50/30/20 rule: 50% needs, 30% wants, 20% savings. 🏦";
+      return "Hmm, I didn’t get that. 😅 Try asking about expenses, analysis, or history!";
+    }
+
+    // Send message function: handle user input, bot reply, voice output, and save chat
+    function sendMessage() {
+      const input = document.getElementById("userMessage");
+      const message = input.value.trim();
+      if (message === "") return;
+
+      addMessage(message, 'user');
+      input.value = "";
+
+      // Show typing indicator
+      const typing = document.createElement("div");
+      typing.className = "typing";
+      typing.id = "typingIndicator";
+      typing.textContent = "Expy is typing...";
+      document.getElementById("chatbox").appendChild(typing);
+      document.getElementById("chatbox").scrollTop = document.getElementById("chatbox").scrollHeight;
+
+      // Simulate bot thinking time
+      setTimeout(() => {
+        typing.remove();
+        const reply = getBotReply(message);
+        addMessage(reply, 'bot');
+        speak(reply);
+        saveChatToLocalStorage(message, reply);
+      }, 1200);
+    }
+
+    // Save chat to localStorage
+    function saveChatToLocalStorage(userMsg, botReply) {
+      let chatHistory = JSON.parse(localStorage.getItem("chatHistory")) || [];
+      chatHistory.push({ user: userMsg, bot: botReply, timestamp: new Date().toISOString() });
+      localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
+    }
+
+    // Load chat from localStorage on page load
+    function loadChatFromLocalStorage() {
+      let chatHistory = JSON.parse(localStorage.getItem("chatHistory")) || [];
+      chatHistory.forEach(convo => {
+        addMessage(convo.user, 'user');
+        addMessage(convo.bot, 'bot');
+      });
+    }
+
+    // Check Enter key to send message
+    function checkEnter(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        sendMessage();
+      }
+    }
+
+    // Voice input using SpeechRecognition
+    function startVoiceInput() {
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        alert("Your browser does not support speech recognition. Please use Chrome or Edge.");
+        return;
+      }
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.start();
+
+      recognition.onresult = (event) => {
+        const speechResult = event.results[0][0].transcript;
+        document.getElementById("userMessage").value = speechResult;
+        sendMessage();
+      };
+      recognition.onerror = (event) => {
+        alert("Speech recognition error: " + event.error);
+      };
+    }
+
+    // Download chat as PDF
+    async function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      let chatHistory = JSON.parse(localStorage.getItem("chatHistory")) || [];
+
+      doc.setFontSize(16);
+      doc.text("Expensify Chat Summary with Expy", 10, 15);
+      doc.setFontSize(12);
+
+      let y = 30;
+      chatHistory.forEach((entry, idx) => {
+        let userText = `You: ${entry.user}`;
+        let botText = `Expy: ${entry.bot}`;
+        doc.text(userText, 10, y);
+        y += 7;
+        doc.text(botText, 10, y);
+        y += 12;
+        if (y > 270) {
+          doc.addPage();
+          y = 20;
+        }
+      });
+
+      doc.save("Expy_Chat_Summary.pdf");
+    }
+
+    // Close dropdown if clicked outside
+    window.onclick = function(event) {
+      const dropdown = document.getElementById("settingsDropdown");
+      if (!event.target.matches('.settings-icon')) {
+        if (dropdown.style.display === "flex") {
+          dropdown.style.display = "none";
+        }
+      }
+    };
+
+    // Initialize chat on page load
+    window.onload = () => {
+      loadChatFromLocalStorage();
+      // Greet user automatically if no chat history
+      let chatHistory = JSON.parse(localStorage.getItem("chatHistory")) || [];
+      if (chatHistory.length === 0) {
+        const greeting = "Hello! I'm Expy, your expense assistant. How can I help you today?";
+        addMessage(greeting, 'bot');
+        speak(greeting);
+        saveChatToLocalStorage("", greeting);
+      }
+    };
+    
+  function clearChatHistory() {
+  localStorage.removeItem("chatHistory");
+  document.getElementById("chatbox").innerHTML = "";
+  alert("Chat history cleared.");
+}
+
+  </script>
+</body>
+</html>

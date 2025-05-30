@@ -1,0 +1,271 @@
+<!-- 👑 Profile Page - Ocean Blue Edition with Click-to-Upload -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Expensify Profile</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #4F6D7A, #C0D6DF, #DBE9EE, #4A6FA5, #166088);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 1s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.7);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(18px);
+      border-radius: 30px;
+      padding: 40px;
+      width: 90%;
+      max-width: 700px;
+      text-align: center;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+    }
+
+    h1 {
+      font-size: 30px;
+      background: linear-gradient(90deg, #4F6D7A, #4A6FA5, #166088);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 20px;
+    }
+
+    .profile-image-preview {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 20px;
+      border: 3px solid #166088;
+      background: url('https://cdn-icons-png.flaticon.com/512/847/847969.png') center center / cover no-repeat;
+      display: inline-block;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .profile-image-preview:hover {
+      transform: scale(1.05);
+    }
+
+    form {
+      text-align: left;
+      margin-top: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border-radius: 14px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+      outline: none;
+      transition: 0.3s ease;
+    }
+
+    input:focus, textarea:focus {
+      border-color: #166088;
+      box-shadow: 0 0 0 2px rgba(22, 96, 136, 0.3);
+    }
+
+    button {
+      width: 100%;
+      background: linear-gradient(to right, #4A6FA5, #166088);
+      color: white;
+      font-weight: bold;
+      padding: 12px;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(to right, #3a5e85, #0d4a6b);
+    }
+
+    .nav-links {
+      margin-top: 30px;
+    }
+
+    .nav-links a {
+      margin: 0 14px;
+      text-decoration: none;
+      font-weight: bold;
+      color: #166088;
+    }
+
+    .nav-links a:hover {
+      text-decoration: underline;
+      color: #0d4a6b;
+    }
+
+    /* Hide the file input */
+    input[type="file"] {
+      display: none;
+    }
+
+    /* Settings Icon */
+    .settings-container {
+      position: absolute;
+      top: 30px;
+      right: 40px;
+      z-index: 10;
+    }
+
+    .settings-icon {
+      font-size: 24px;
+      background: rgba(255,255,255,0.7);
+      border-radius: 50%;
+      padding: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .settings-icon:hover {
+      background: rgba(255,255,255,0.9);
+    }
+
+    .dropdown {
+      display: none;
+      flex-direction: column;
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: rgba(255,255,255,0.95);
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      padding: 10px;
+      min-width: 180px;
+    }
+
+    .dropdown a {
+      text-decoration: none;
+      padding: 10px;
+      font-weight: bold;
+      color: #333;
+      border-radius: 8px;
+      transition: background 0.3s;
+    }
+
+    .dropdown a:hover {
+      background: #d0e3ed;
+    }
+
+    .gif-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+
+ <!-- Settings Dropdown -->
+<div class="settings-container">
+  <div class="settings-icon" onclick="toggleDropdown()">⚙️</div>
+  <div class="dropdown" id="settingsDropdown">
+    <a href="signup.html">Signup</a>
+    <a href="login.html">Login</a>
+    <a href="profile.html">Profile</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="analysis.html">Analysis</a>
+    <a href="Myhistory.html">My History</a>
+    <a href="chatbot.html">
+      <img src="assets/icongif2.gif" class="gif-icon" alt="Expy GIF" />
+      Talk with Expy!
+    </a>
+    <a href="#" onclick="logout()">Logout</a>
+  </div>
+</div>
+
+  <div class="container">
+    <h1>👤 Your Profile</h1>
+
+    <!-- Clickable Profile Picture -->
+    <div class="profile-image-preview" id="profilePreview" title="Click to upload photo"></div>
+    <input type="file" id="profilePic" accept="image/*">
+
+    <form id="profileForm">
+      <label for="fullName">Full Name</label>
+      <input type="text" id="fullName" placeholder="e.g. Priyancee Dubey" required>
+
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="e.g. priyancee@expensify.com" required>
+
+      <label for="phone">Phone Number</label>
+      <input type="text" id="phone" placeholder="+91 9876543210" required>
+
+      <label for="bio">Short Bio</label>
+      <textarea id="bio" rows="3" placeholder="Tell us about yourself..."></textarea>
+
+      <button type="submit">💾 Save Profile</button>
+    </form>
+
+    <div class="nav-links">
+      <a href="dashboard.html">🏠 Dashboard</a>
+      <a href="analysis.html">📊 Analysis</a>
+    </div>
+  </div>
+
+<script>
+  const preview = document.getElementById("profilePreview");
+  const fileInput = document.getElementById("profilePic");
+
+  preview.addEventListener("click", () => {
+    fileInput.click();
+  });
+
+  fileInput.addEventListener("change", function(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        preview.style.backgroundImage = `url('${e.target.result}')`;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  document.getElementById("profileForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    alert("✅ Profile updated successfully!");
+  });
+
+  function toggleDropdown() {
+    const dropdown = document.getElementById("settingsDropdown");
+    dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
+  }
+
+  function logout() {
+    localStorage.removeItem("user");
+    alert("You have logged out!");
+    window.location.href = "signup.html";
+  }
+</script>
+</body>
+</html>

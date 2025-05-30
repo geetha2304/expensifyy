@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Expensify Dashboard</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #4F6D7A, #C0D6DF, #DBE9EE, #4A6FA5, #166088);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 220px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      border-top-right-radius: 20px;
+      border-bottom-right-radius: 20px;
+      box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+    }
+
+    .sidebar a {
+      color: #fff;
+      font-weight: bold;
+      text-decoration: none;
+      padding: 10px 15px;
+      border-radius: 10px;
+      background: linear-gradient(to right, #4F6D7A, #4A6FA5);
+      text-align: center;
+      transition: 0.3s ease;
+    }
+
+    .sidebar a:hover {
+      background: linear-gradient(to right, #166088, #4F6D7A);
+    }
+
+    .container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .form-box {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 25px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      font-size: 26px;
+      background: linear-gradient(90deg, #4F6D7A, #166088);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button {
+      opacity: 1;
+    }
+
+    button {
+      padding: 12px 20px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(to right, #4F6D7A, #166088);
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: linear-gradient(to right, #166088, #4F6D7A);
+    }
+
+    .settings-container {
+      position: absolute;
+      top: 30px;
+      right: 40px;
+      z-index: 10;
+    }
+
+    .settings-icon {
+      font-size: 24px;
+      background: rgba(255,255,255,0.7);
+      border-radius: 50%;
+      padding: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .settings-icon:hover {
+      background: rgba(255,255,255,0.9);
+    }
+
+    .dropdown {
+      display: none;
+      flex-direction: column;
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: rgba(255,255,255,0.95);
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      padding: 10px;
+      min-width: 180px;
+    }
+
+    .dropdown a {
+      text-decoration: none;
+      padding: 10px;
+      font-weight: bold;
+      color: #333;
+      border-radius: 8px;
+      transition: background 0.3s;
+    }
+
+    .dropdown a:hover {
+      background: #DBE9EE;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .gif-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- Settings Dropdown -->
+<div class="settings-container">
+  <div class="settings-icon" onclick="toggleDropdown()">⚙️</div>
+  <div class="dropdown" id="settingsDropdown">
+    <a href="signup.html">Signup</a>
+    <a href="login.html">Login</a>
+    <a href="profile.html">Profile</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="analysis.html">Analysis</a>
+    <a href="Myhistory.html">My History</a>
+    <a href="chatbot.html">
+      <img src="assets/icongif2.gif" class="gif-icon" alt="Expy GIF" />
+      Talk with Expy!
+    </a>
+    <a href="#" onclick="logout()">Logout</a>
+  </div>
+</div>
+
+<div class="container">
+  <!-- Expense Form -->
+  <div class="form-box">
+    <h1>👑 Expensify - Enter Expense</h1>
+
+    <div class="form-group">
+      <label for="salary">Monthly Salary (₹)</label>
+      <input type="number" id="salary" placeholder="Enter your salary" required>
+    </div>
+
+    <div class="form-group">
+      <label for="title">Expense Title</label>
+      <input type="text" id="title" placeholder="e.g. Café Coffee" required>
+    </div>
+
+    <div class="form-group">
+      <label for="amount">Amount Spent (₹)</label>
+      <input type="number" id="amount" placeholder="Enter amount" required>
+    </div>
+
+    <div class="form-group">
+      <label for="date">Date (DD-MM-YYYY)</label>
+      <input 
+        type="text" 
+        id="date" 
+        placeholder="Enter date in DD-MM-YYYY format" 
+        required 
+        pattern="\d{2}-\d{2}-\d{4}" 
+        oninput="this.value = this.value.replace(/[^0-9\-]/g, '')"
+      >
+    </div>
+
+    <!-- Budget Limit Section -->
+    <div class="form-group">
+      <label for="budgetLimit">Set Your Budget Limit (₹)</label>
+      <input type="range" id="budgetLimit" min="1000" max="200000" step="500" value="50000" oninput="updateBudgetValue()">
+      <div id="budgetValue" style="text-align:center; margin-top:8px; font-weight:bold; color:#333;">₹50,000</div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="button-group">
+      <button onclick="addExpense()">➕ Add Expense</button>
+      <button onclick="goToAnalysis()">📊 Go to Analysis</button>
+    </div>
+
+    <!-- Success message container -->
+    <div id="messageContainer" style="text-align: center; margin-top: 20px;"></div>
+  </div>
+</div>
+
+<script>
+  function toggleDropdown() {
+    const dropdown = document.getElementById("settingsDropdown");
+    dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
+  }
+
+  function logout() {
+    localStorage.clear();
+    window.location.href = "signup.html";
+  }
+
+  function updateBudgetValue() {
+    const budgetLimit = document.getElementById("budgetLimit").value;
+    document.getElementById("budgetValue").innerText = `₹${parseInt(budgetLimit).toLocaleString()}`;
+  }
+
+  function saveBudgetLimit() {
+    const budgetLimit = parseFloat(document.getElementById("budgetLimit").value);
+    localStorage.setItem("budgetLimit", budgetLimit);
+  }
+
+  function addExpense() {
+    const salary = parseFloat(document.getElementById("salary").value);
+    const title = document.getElementById("title").value.trim();
+    const amount = parseFloat(document.getElementById("amount").value);
+    const date = document.getElementById("date").value.trim();
+    const datePattern = /^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$/;
+
+    if (isNaN(salary) || !title || isNaN(amount) || !datePattern.test(date)) {
+      alert("Please enter all fields correctly.\nEnsure date is in DD-MM-YYYY format.");
+      return;
+    }
+
+    saveBudgetLimit(); // Save the latest budget limit
+
+    const expense = { salary, title, amount, date };
+
+    const sessionExpenses = JSON.parse(localStorage.getItem("sessionExpenses")) || [];
+    sessionExpenses.push(expense);
+    localStorage.setItem("sessionExpenses", JSON.stringify(sessionExpenses));
+
+    const allExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
+    allExpenses.push(expense);
+    localStorage.setItem("expenses", JSON.stringify(allExpenses));
+
+    // Show success message in the container
+    const messageContainer = document.getElementById("messageContainer");
+    messageContainer.innerHTML = "<p style='color: green; font-weight: bold;'>✅ Expense added successfully!</p>";
+    
+    // Clear input fields after adding expense
+    document.getElementById("title").value = "";
+    document.getElementById("amount").value = "";
+    document.getElementById("date").value = "";
+
+    // Optionally, hide the message after a few seconds
+    setTimeout(() => {
+      messageContainer.innerHTML = "";
+    }, 3000);  // Message disappears after 3 seconds
+  }
+
+  function goToAnalysis() {
+    window.location.href = "analysis.html"; // Redirect to analysis.html
+  }
+</script>
+
+</body>
+</html>
